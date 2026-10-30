@@ -1,0 +1,17 @@
+{
+  "name": "EON · گندم کا پورا سیزن",
+  "short_name": "EON گندم",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#7CC6F5",
+  "theme_color": "#2E9BEA",
+  "lang": "ur",
+  "dir": "rtl",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
