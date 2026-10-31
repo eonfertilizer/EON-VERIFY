@@ -167,6 +167,17 @@ ul.pts li::before{content:"";width:.62em;height:.62em;border-radius:50%;backgrou
 #rotate p{font-size:22px;line-height:2;font-weight:700}
 @media (orientation:portrait){ body:not(.portrait-ok) #rotate{display:flex} }
 
+#start{position:fixed;inset:0;z-index:35;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,2.4vh,18px);text-align:center;padding:24px;background:radial-gradient(ellipse at 30% 20%,#FFF6CF 0%,rgba(255,246,207,0) 40%),linear-gradient(#58BDFB,#BFE8FF 60%,#E9F5D6);transition:opacity .5s}
+#start.gone{opacity:0;pointer-events:none}
+#start .sb{font-family:var(--latin);font-weight:800;letter-spacing:.24em;color:var(--ink);font-size:clamp(14px,3.4vh,20px);direction:ltr}
+#start .sb i{display:inline-block;width:5px;height:.9em;background:var(--gold);margin-inline-end:4px;vertical-align:-1px;border-radius:2px}
+#start h1{font-size:clamp(26px,9vh,64px);line-height:1.7;margin-bottom:clamp(6px,2vh,16px)}
+#start button{font:inherit;font-weight:700;font-size:clamp(18px,5.6vh,32px);color:#fff;background:var(--ink);border:0;border-radius:999px;height:clamp(52px,15vh,84px);padding:0 clamp(28px,5vw,48px);display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 14px 30px -12px rgba(0,0,0,.55);animation:breathe 1.8s ease-in-out infinite;line-height:1}
+#start button svg{width:.9em;height:.9em}
+#start button:focus-visible{outline:3px solid #fff;outline-offset:4px}
+#start .tip{font-size:clamp(12px,3.2vh,17px);line-height:2;color:var(--ink2);max-width:36em;display:none}
+#start .tip b{color:var(--ink)}
+#start.ios .tip{display:block}
 /* field svg states (CSS-driven parts) */
 #nut circle{fill:#8E836F;opacity:.8;transition:fill .6s,opacity .6s}
 #field.nut-free #nut circle{fill:#FFD54F;opacity:1}
@@ -333,6 +344,12 @@ ul.pts li::before{content:"";width:.62em;height:.62em;border-radius:50%;backgrou
 
 <div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="sc"><div class="k" id="sheetK"></div><h2 id="sheetTitle"></h2><div class="sci" id="sheetBody"></div><button class="pill ghost" id="sheetClose" type="button">واپس کہانی پر</button></div>
+</div>
+<div id="start">
+  <div class="sb"><i></i>EON</div>
+  <h1 id="startT"></h1>
+  <button id="startBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg><span>شروع کریں</span></button>
+  <p class="tip">آئی فون پر پوری سکرین کے لیے: نیچے <b>شیئر</b> بٹن دبائیں، پھر <b>Add to Home Screen</b>۔ اس کے بعد ہوم سکرین پر ای اون آئیکن سے کھولیں۔</p>
 </div>
 <div id="rotate">
   <svg viewBox="0 0 100 100" fill="none" stroke="#1E2A1C" stroke-width="4" stroke-linejoin="round"><rect x="32" y="12" width="36" height="76" rx="6"/><line x1="44" y1="78" x2="56" y2="78"/></svg>
@@ -1173,13 +1190,26 @@ $("next").addEventListener("click",next);$("back").addEventListener("click",func
 $("sheetClose").addEventListener("click",closeWhy);$("sheet").addEventListener("click",function(e){if(e.target===this)closeWhy();});
 $("portraitOk").addEventListener("click",function(){document.body.classList.add("portrait-ok");setTimeout(onResize,50);});
 $("full").addEventListener("click",function(){try{var d=document.documentElement,fn=d.requestFullscreen||d.webkitRequestFullscreen,pr=fn&&fn.call(d);if(pr&&pr.then)pr.then(function(){try{screen.orientation.lock("landscape").catch(function(){});}catch(_){}}).catch(function(){});}catch(_){}});
-document.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="Enter"||e.key===" "){e.preventDefault();next();}else if(e.key==="ArrowLeft"){e.preventDefault();goTo(i-1);}else if(e.key==="Escape")closeWhy();});
+document.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="Enter"||e.key===" "){e.preventDefault();next();}else if(e.key==="ArrowLeft"){e.preventDefault();goTo(i-1);}else if(e.key==="Escape")closeWhy();else if(e.key==="f"||e.key==="F"){$("full").click();}});
 var rT=null;function onResize(){clearTimeout(rT);rT=setTimeout(function(){fitCard();paintAll();layoutCmp();if(SOW.on&&SOW.inner)SOW.lay=ovLayout(SOW.inner,510,270);if(EAR.state!=="off"&&EAR.inner)EAR.lay=ovLayout(EAR.inner,510,270);if(cur)shot(cur.shot,.01);},120);}
 window.addEventListener("resize",onResize);
 
 measure();paintAll();setRoots(0);
 if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))$("full").style.display="none";
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){fitCard();});
+
+/* ---------- start screen: one tap to full screen ---------- */
+(function(){var st=$("start");$("startT").textContent=document.title;
+  var standalone=(window.matchMedia&&(matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: fullscreen)").matches))||navigator.standalone===true;
+  var ios=/iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1&&!document.fullscreenEnabled);
+  var canFS=!!(document.fullscreenEnabled||document.webkitFullscreenEnabled);
+  if(standalone){st.classList.add("gone");return;}
+  if(ios&&!canFS)st.classList.add("ios");
+  function go(){try{var d=document.documentElement,fn=d.requestFullscreen||d.webkitRequestFullscreen;if(canFS&&fn){var pr=fn.call(d,{navigationUI:"hide"});if(pr&&pr.then)pr.then(function(){try{screen.orientation.lock("landscape").catch(function(){});}catch(_){}}).catch(function(){});}}catch(_){}
+    st.classList.add("gone");setTimeout(function(){st.style.display="none";onResize();},550);}
+  $("startBtn").addEventListener("click",go);
+  document.addEventListener("keydown",function(e){if(st.style.display!=="none"&&(e.key==="Enter"||e.key===" ")){e.preventDefault();e.stopImmediatePropagation();go();}},true);
+  document.addEventListener("fullscreenchange",function(){onResize();});})();
 window.__eon={goTo:goTo,next:next,B:B,get i(){return i;}};
 enter(.01);
 })();
